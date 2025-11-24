@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตู้หมุนไข่ (เวอร์ชั่นไข่ดิ้นได้)</title>
+    <title>Gacha Machine - Clean Version</title>
     <style>
+        :root {
+            --bg-gradient: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
+            --machine-color: #FF6B6B;
+            --machine-shadow: rgba(0,0,0,0.2);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #FFDEE9;
-            background-image: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
+            background-image: var(--bg-gradient);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,99 +24,109 @@
             overflow: hidden;
         }
 
-        h2 { color: #555; text-shadow: 1px 1px 2px white; }
+        h2 {
+            color: #555;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+        }
 
+        /* --- Machine Structure --- */
         .machine-container {
             position: relative;
             width: 280px;
-            height: 420px;
+            height: 440px; /* เพิ่มความสูงนิดหน่อย */
         }
 
         .glass-dome {
             width: 240px;
             height: 200px;
-            background-color: rgba(255, 255, 255, 0.6);
-            border: 8px solid #FF6B6B;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 8px solid var(--machine-color);
             border-bottom: none;
             border-radius: 120px 120px 0 0;
             margin: 0 auto;
             position: relative;
             overflow: hidden;
             z-index: 2;
-            box-shadow: inset 10px 10px 30px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .ball-inside {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.1);
-            transition: transform 0.2s; /* ช่วยให้การเคลื่อนที่ดูลื่นขึ้น */
+            box-shadow: inset 10px 10px 30px rgba(255,255,255,0.8), 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .base {
             width: 280px;
-            height: 200px;
-            background-color: #FF6B6B;
-            border-radius: 20px;
+            height: 220px;
+            background-color: var(--machine-color);
+            border-radius: 20px 20px 30px 30px;
             position: relative;
             top: -5px;
             z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 25px var(--machine-shadow);
+        }
+
+        /* --- Components --- */
+        .ball-inside {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
 
         .knob-area {
-            background-color: white;
+            background-color: #fff;
             width: 180px;
-            height: 80px;
-            margin-top: 20px;
-            border-radius: 10px;
+            height: 90px;
+            margin-top: 25px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.15);
         }
 
         .knob {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background-color: #eee;
             border-radius: 50%;
-            border: 4px solid #ddd;
+            border: 5px solid #ddd;
             position: relative;
             cursor: pointer;
-            box-shadow: 0 4px 0 #bbb;
-            transition: transform 0.1s;
+            box-shadow: 0 5px 0 #bbb;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
         
         .knob::after {
             content: '';
             position: absolute;
-            top: 50%; left: 0; right: 0;
-            height: 10px;
-            background-color: #ddd;
+            top: 50%; left: 10%; right: 10%;
+            height: 12px;
+            background-color: #ccc;
             transform: translateY(-50%);
+            border-radius: 5px;
         }
 
         .knob:active {
             transform: translateY(4px);
-            box-shadow: 0 0 0 #bbb;
+            box-shadow: 0 1px 0 #bbb;
         }
 
         .exit-hole {
-            width: 100px;
-            height: 60px;
+            width: 120px;
+            height: 70px;
             background-color: #333;
-            margin-top: 20px;
-            border-radius: 10px 10px 40px 40px;
-            position: relative;
+            margin-top: 25px;
+            border-radius: 10px 10px 50px 50px;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
             overflow: hidden;
+            position: relative;
         }
 
+        /* --- Prize Capsule --- */
         .prize-capsule {
             width: 60px;
             height: 60px;
@@ -118,107 +134,103 @@
             background: radial-gradient(circle at 30% 30%, #fff, #FFD700);
             border: 2px solid rgba(0,0,0,0.1);
             position: absolute;
-            top: 260px; 
+            top: 280px; 
             left: 50%;
             transform: translateX(-50%) scale(0);
             z-index: 10;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            font-weight: bold;
+            color: rgba(0,0,0,0.5);
             cursor: pointer;
         }
 
-        /* Modal */
+        /* --- Animations Classes --- */
+        .mixing {
+            animation: tumble 0.5s infinite linear alternate;
+        }
+        
+        .spinning { 
+            animation: spinKnob 0.8s linear infinite; 
+        }
+
+        .dropping { 
+            animation: dropBall 0.8s cubic-bezier(0.5, -0.5, 0.2, 1.5) forwards; 
+        }
+
+        /* Keyframes */
+        @keyframes spinKnob {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes tumble {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(15px, -25px) rotate(90deg); }
+            50% { transform: translate(-20px, 10px) rotate(180deg); }
+            75% { transform: translate(20px, -15px) rotate(270deg); }
+            100% { transform: translate(-5px, 5px) rotate(360deg); }
+        }
+
+        @keyframes dropBall {
+            0% { top: 220px; opacity: 0; transform: translateX(-50%) scale(0.5); }
+            60% { top: 390px; opacity: 1; transform: translateX(-50%) scale(1.1); }
+            80% { top: 380px; transform: translateX(-50%) scale(1); }
+            100% { top: 385px; transform: translateX(-50%) scale(1); }
+        }
+
+        /* --- Modal --- */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.6);
             z-index: 100;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(2px);
         }
 
         .modal-content {
             background-color: white;
-            padding: 30px;
-            border-radius: 20px;
+            padding: 40px;
+            border-radius: 25px;
             text-align: center;
-            animation: popIn 0.3s ease-out;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             max-width: 80%;
         }
 
-        button.close-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #FF6B6B;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* Animations */
-        @keyframes spinKnob {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         @keyframes popIn {
-            from { transform: scale(0.5); opacity: 0; }
+            from { transform: scale(0.8); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* Animation ไข่ดิ้น */
-        @keyframes tumble {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(10px, -20px) rotate(90deg); }
-            50% { transform: translate(-15px, 10px) rotate(180deg); }
-            75% { transform: translate(15px, -10px) rotate(270deg); }
-            100% { transform: translate(0, 0) rotate(360deg); }
+        button.close-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            background-color: var(--machine-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.1s;
         }
-
-        .dropping { 
-            animation: dropBall 0.6s forwards; 
-        }
-
-        @keyframes dropBall {
-            0% { top: 260px; transform: translateX(-50%) scale(0.5); opacity: 0; }
-            50% { opacity: 1; }
-            100% { top: 380px; transform: translateX(-50%) scale(1); }
-        }
-
-        /* Class สำหรับสั่งไข่ดิ้น */
-        .mixing {
-            animation: tumble 0.4s infinite linear;
-        }
-        
-        /* สั่งหมุน */
-        .spinning { animation: spinKnob 0.5s linear; }
-
+        button.close-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
     <h2>ตู้เสี่ยงเวร (กรรม)</h2>
 
-    <div class="machine-container" id="machine">
-        <div class="glass-dome">
-            <div class="ball-inside" style="background:#FF9A9E; top:120px; left:40px;"></div>
-            <div class="ball-inside" style="background:#A18CD1; top:140px; left:100px;"></div>
-            <div class="ball-inside" style="background:#FBC2EB; top:110px; left:150px;"></div>
-            <div class="ball-inside" style="background:#84FAB0; top:150px; left:70px;"></div>
-            <div class="ball-inside" style="background:#FFD1FF; top:90px; left:90px;"></div>
-            <div class="ball-inside" style="background:#FFE066; top:130px; left:30px;"></div>
-        </div>
+    <div class="machine-container">
+        <div class="glass-dome" id="dome"></div>
         
         <div class="base">
             <div class="knob-area">
-                <div class="knob" id="knob" onclick="playGacha()"></div>
+                <div class="knob" id="knob" onclick="startMachine()"></div>
             </div>
             <div class="exit-hole"></div>
         </div>
@@ -228,90 +240,120 @@
 
     <div class="modal" id="resultModal">
         <div class="modal-content">
-            <h3 style="color:#FF6B6B">ยินดีด้วย!</h3>
-            <div id="prizeText" style="font-size: 20px; margin: 20px 0;">...</div>
-            <button class="close-btn" onclick="closeModal()">เล่นอีกครั้ง</button>
+            <h3 style="color:#FF6B6B; margin-top:0;">ผู้โชคดีคือ...</h3>
+            <h1 id="prizeText" style="font-size: 32px; color:#333; margin: 20px 0;">...</h1>
+            <button class="close-btn" onclick="resetMachine()">เล่นอีกครั้ง</button>
         </div>
     </div>
 
     <script>
-        const prizes = [
-            "BIRD",
-            "LOOKWHA",
-            "MAY",
-            "PUI",
-        ];
+        // --- Configuration ---
+        const CONFIG = {
+            prizes: ["BIRD", "LOOKWHA", "MAY", "PUI"], // รายชื่อรางวัล
+            ballColors: ['#FF9A9E', '#A18CD1', '#FBC2EB', '#84FAB0', '#FFD1FF', '#FFE066'], // สีลูกบอล
+            ballCount: 7, // จำนวนลูกบอลในตู้
+            spinDuration: 5000 // ระยะเวลาหมุน (มิลลิวินาที)
+        };
+
+        // --- Elements ---
+        const el = {
+            dome: document.getElementById('dome'),
+            knob: document.getElementById('knob'),
+            capsule: document.getElementById('capsule'),
+            modal: document.getElementById('resultModal'),
+            prizeText: document.getElementById('prizeText')
+        };
 
         let isPlaying = false;
 
-        function playGacha() {
+        // --- Functions ---
+
+        // 1. สร้างลูกบอลตอนโหลดหน้าเว็บ
+        function initBalls() {
+            el.dome.innerHTML = ''; // เคลียร์ของเก่า
+            for (let i = 0; i < CONFIG.ballCount; i++) {
+                const ball = document.createElement('div');
+                ball.classList.add('ball-inside');
+                
+                // สุ่มสี
+                ball.style.background = CONFIG.ballColors[i % CONFIG.ballColors.length];
+                
+                // สุ่มตำแหน่งเริ่มต้น
+                const top = Math.random() * 100 + 60; // 60px - 160px
+                const left = Math.random() * 160 + 20; // 20px - 180px
+                ball.style.top = `${top}px`;
+                ball.style.left = `${left}px`;
+                
+                el.dome.appendChild(ball);
+            }
+        }
+
+        // 2. เริ่มทำงานเมื่อกดปุ่ม
+        function startMachine() {
             if (isPlaying) return;
             isPlaying = true;
 
-            const knob = document.getElementById('knob');
-            const capsule = document.getElementById('capsule');
-            // เลือกไข่ทั้งหมดข้างใน
+            // Reset Capsule
+            el.capsule.classList.remove('dropping');
+            el.capsule.style.transform = 'translateX(-50%) scale(0)';
+
+            // Start Animation
+            el.knob.classList.add('spinning');
+            
             const balls = document.querySelectorAll('.ball-inside');
-
-            // Reset ไข่ผลลัพธ์
-            capsule.classList.remove('dropping');
-            void capsule.offsetWidth;
-
-            // 1. หมุนลูกบิด
-            knob.classList.add('spinning');
-
-            // 2. สั่งให้ไข่ข้างในดิ้น (ใส่ class mixing)
-            balls.forEach((ball, index) => {
-                // เพิ่ม delay เล็กน้อยให้แต่ละลูกขยับไม่พร้อมกันเป๊ะๆ จะได้ดูธรรมชาติ
-                ball.style.animationDelay = (index * 0.1) + 's'; 
+            balls.forEach(ball => {
+                ball.style.animationDelay = Math.random() * 0.5 + 's'; // random delay ให้ดูธรรมชาติ
                 ball.classList.add('mixing');
             });
 
-            // 3. หน่วงเวลา 5 วินาที
+            // รอ 5 วินาที
             setTimeout(() => {
-                // หยุดหมุนลูกบิด
-                knob.classList.remove('spinning');
-                
-                // หยุดไข่ดิ้น
-                balls.forEach(ball => {
-                    ball.classList.remove('mixing');
-                    ball.style.transform = "translate(0,0)"; // Reset ตำแหน่ง
-                });
-
-                // สุ่มสีไข่ผลลัพธ์
-                const colors = ['#FF9A9E', '#A18CD1', '#FBC2EB', '#84FAB0', '#FFD700'];
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                capsule.style.background = `radial-gradient(circle at 30% 30%, #fff, ${randomColor})`;
-                
-                // ไข่ตกลงมา
-                capsule.classList.add('dropping');
-
-                // รอไข่ตกถึงพื้นแล้วค่อยโชว์ผล
-                setTimeout(() => {
-                    showResult();
-                }, 700);
-
-            }, 5000); // 5000 milliseconds = 5 วินาที
+                stopAnimation(balls);
+                dropPrize();
+            }, CONFIG.spinDuration);
         }
 
+        // 3. หยุดอนิเมชั่น
+        function stopAnimation(balls) {
+            el.knob.classList.remove('spinning');
+            balls.forEach(ball => {
+                ball.classList.remove('mixing');
+                // รีเซ็ตตำแหน่งให้นิ่งๆ
+                ball.style.transform = 'translate(0,0)';
+            });
+        }
+
+        // 4. ปล่อยรางวัล
+        function dropPrize() {
+            // สุ่มสีแคปซูลผลลัพธ์
+            const randomColor = CONFIG.ballColors[Math.floor(Math.random() * CONFIG.ballColors.length)];
+            el.capsule.style.background = `radial-gradient(circle at 30% 30%, #fff, ${randomColor})`;
+            
+            // Animation ตก
+            el.capsule.classList.add('dropping');
+
+            // แสดงผล
+            setTimeout(() => {
+                showResult();
+            }, 1000);
+        }
+
+        // 5. แสดง Pop-up
         function showResult() {
-            const modal = document.getElementById('resultModal');
-            const prizeText = document.getElementById('prizeText');
-            
-            const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
-            prizeText.innerText = `(ผู้โชคดี): ${randomPrize}`;
-            
-            modal.style.display = 'flex';
+            const result = CONFIG.prizes[Math.floor(Math.random() * CONFIG.prizes.length)];
+            el.prizeText.innerText = result;
+            el.modal.style.display = 'flex';
         }
 
-        function closeModal() {
-            const modal = document.getElementById('resultModal');
-            const capsule = document.getElementById('capsule');
-            
-            modal.style.display = 'none';
-            capsule.classList.remove('dropping');
+        // 6. รีเซ็ตเพื่อเล่นใหม่
+        function resetMachine() {
+            el.modal.style.display = 'none';
             isPlaying = false;
         }
+
+        // Run Init
+        window.onload = initBalls;
+
     </script>
 </body>
 </html>
