@@ -3,357 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gacha Machine - Clean Version</title>
+    <title>Modern Random Picker 🎲</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
-        :root {
-            --bg-gradient: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
-            --machine-color: #FF6B6B;
-            --machine-shadow: rgba(0,0,0,0.2);
-            --glass-border: rgba(255, 255, 255, 0.6);
+        body { font-family: 'Kanit', sans-serif; }
+        /* Animation พื้นหลัง */
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-image: var(--bg-gradient);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+        .animate-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
         }
-
-        h2 {
-            color: #555;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
-            margin-bottom: 20px;
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        /* --- Machine Structure --- */
-        .machine-container {
-            position: relative;
-            width: 280px;
-            height: 440px; /* เพิ่มความสูงนิดหน่อย */
-        }
-
-        .glass-dome {
-            width: 240px;
-            height: 200px;
-            background-color: rgba(255, 255, 255, 0.4);
-            border: 8px solid var(--machine-color);
-            border-bottom: none;
-            border-radius: 120px 120px 0 0;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-            z-index: 2;
-            box-shadow: inset 10px 10px 30px rgba(255,255,255,0.8), 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .base {
-            width: 280px;
-            height: 220px;
-            background-color: var(--machine-color);
-            border-radius: 20px 20px 30px 30px;
-            position: relative;
-            top: -5px;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 15px 25px var(--machine-shadow);
-        }
-
-        /* --- Components --- */
-        .ball-inside {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.1);
-            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .knob-area {
-            background-color: #fff;
-            width: 180px;
-            height: 90px;
-            margin-top: 25px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.15);
-        }
-
-        .knob {
-            width: 70px;
-            height: 70px;
-            background-color: #eee;
-            border-radius: 50%;
-            border: 5px solid #ddd;
-            position: relative;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #bbb;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        
-        .knob::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 10%; right: 10%;
-            height: 12px;
-            background-color: #ccc;
-            transform: translateY(-50%);
-            border-radius: 5px;
-        }
-
-        .knob:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #bbb;
-        }
-
-        .exit-hole {
-            width: 120px;
-            height: 70px;
-            background-color: #333;
-            margin-top: 25px;
-            border-radius: 10px 10px 50px 50px;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* --- Prize Capsule --- */
-        .prize-capsule {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fff, #FFD700);
-            border: 2px solid rgba(0,0,0,0.1);
-            position: absolute;
-            top: 280px; 
-            left: 50%;
-            transform: translateX(-50%) scale(0);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: rgba(0,0,0,0.5);
-            cursor: pointer;
-        }
-
-        /* --- Animations Classes --- */
-        .mixing {
-            animation: tumble 0.5s infinite linear alternate;
-        }
-        
-        .spinning { 
-            animation: spinKnob 0.8s linear infinite; 
-        }
-
-        .dropping { 
-            animation: dropBall 0.8s cubic-bezier(0.5, -0.5, 0.2, 1.5) forwards; 
-        }
-
-        /* Keyframes */
-        @keyframes spinKnob {
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes tumble {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(15px, -25px) rotate(90deg); }
-            50% { transform: translate(-20px, 10px) rotate(180deg); }
-            75% { transform: translate(20px, -15px) rotate(270deg); }
-            100% { transform: translate(-5px, 5px) rotate(360deg); }
-        }
-
-        @keyframes dropBall {
-            0% { top: 220px; opacity: 0; transform: translateX(-50%) scale(0.5); }
-            60% { top: 390px; opacity: 1; transform: translateX(-50%) scale(1.1); }
-            80% { top: 380px; transform: translateX(-50%) scale(1); }
-            100% { top: 385px; transform: translateX(-50%) scale(1); }
-        }
-
-        /* --- Modal --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(2px);
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            max-width: 80%;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        button.close-btn {
-            margin-top: 25px;
-            padding: 12px 30px;
-            background-color: var(--machine-color);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.1s;
-        }
-        button.close-btn:hover { transform: scale(1.05); }
     </style>
 </head>
-<body>
+<body class="animate-bg min-h-screen flex items-center justify-center text-white overflow-hidden">
 
-    <h2>ตู้เสี่ยงเวร (กรรม)</h2>
+    <div id="root"></div>
 
-    <div class="machine-container">
-        <div class="glass-dome" id="dome"></div>
-        
-        <div class="base">
-            <div class="knob-area">
-                <div class="knob" id="knob" onclick="startMachine()"></div>
-            </div>
-            <div class="exit-hole"></div>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        <div class="prize-capsule" id="capsule">?</div>
-    </div>
+        function App() {
+            const [names, setNames] = useState("สมชาย\nสมหญิง\nจอห์น\nซาร่า");
+            const [display, setDisplay] = useState("พร้อมสุ่ม!");
+            const [isRolling, setIsRolling] = useState(false);
+            const [winner, setWinner] = useState(null);
+            const [history, setHistory] = useState([]);
 
-    <div class="modal" id="resultModal">
-        <div class="modal-content">
-            <h3 style="color:#FF6B6B; margin-top:0;">ผู้โชคดีคือ...</h3>
-            <h1 id="prizeText" style="font-size: 32px; color:#333; margin: 20px 0;">...</h1>
-            <button class="close-btn" onclick="resetMachine()">เล่นอีกครั้ง</button>
-        </div>
-    </div>
-
-    <script>
-        // --- Configuration ---
-        const CONFIG = {
-            prizes: ["BIRD", "LOOKWHA", "MAY", "PUI"], // รายชื่อรางวัล
-            ballColors: ['#FF9A9E', '#A18CD1', '#FBC2EB', '#84FAB0', '#FFD1FF', '#FFE066'], // สีลูกบอล
-            ballCount: 7, // จำนวนลูกบอลในตู้
-            spinDuration: 5000 // ระยะเวลาหมุน (มิลลิวินาที)
-        };
-
-        // --- Elements ---
-        const el = {
-            dome: document.getElementById('dome'),
-            knob: document.getElementById('knob'),
-            capsule: document.getElementById('capsule'),
-            modal: document.getElementById('resultModal'),
-            prizeText: document.getElementById('prizeText')
-        };
-
-        let isPlaying = false;
-
-        // --- Functions ---
-
-        // 1. สร้างลูกบอลตอนโหลดหน้าเว็บ
-        function initBalls() {
-            el.dome.innerHTML = ''; // เคลียร์ของเก่า
-            for (let i = 0; i < CONFIG.ballCount; i++) {
-                const ball = document.createElement('div');
-                ball.classList.add('ball-inside');
+            const handleRandom = () => {
+                const nameList = names.split('\n').filter(n => n.trim() !== '');
                 
-                // สุ่มสี
-                ball.style.background = CONFIG.ballColors[i % CONFIG.ballColors.length];
+                if (nameList.length === 0) {
+                    alert('ใส่ชื่อก่อนครับวัยรุ่น! 😎');
+                    return;
+                }
+
+                setIsRolling(true);
+                setWinner(null);
                 
-                // สุ่มตำแหน่งเริ่มต้น
-                const top = Math.random() * 100 + 60; // 60px - 160px
-                const left = Math.random() * 160 + 20; // 20px - 180px
-                ball.style.top = `${top}px`;
-                ball.style.left = `${left}px`;
+                let counter = 0;
+                const interval = setInterval(() => {
+                    // สุ่มโชว์ชื่อรัวๆ
+                    const randomName = nameList[Math.floor(Math.random() * nameList.length)];
+                    setDisplay(randomName);
+                    counter++;
+
+                    // หยุดเมื่อครบ 25 รอบ
+                    if (counter > 25) {
+                        clearInterval(interval);
+                        const finalWinner = nameList[Math.floor(Math.random() * nameList.length)];
+                        finishRandom(finalWinner);
+                    }
+                }, 80);
+            };
+
+            const finishRandom = (finalName) => {
+                setDisplay(finalName);
+                setWinner(finalName);
+                setIsRolling(false);
                 
-                el.dome.appendChild(ball);
-            }
+                // เก็บประวัติ
+                const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                setHistory(prev => [{name: finalName, time: time}, ...prev]);
+
+                // ยิงพลุฉลอง! 🎉
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            };
+
+            return (
+                <div class="glass p-8 rounded-3xl shadow-2xl w-[90vw] max-w-md relative">
+                    
+                    {/* Header */}
+                    <div className="text-center mb-6">
+                        <h1 className="text-3xl font-bold mb-2">🎲 Random Picker <span className="text-xs bg-pink-500 px-2 py-1 rounded-full">Pro</span></h1>
+                        <p className="text-white/70 text-sm">ระบบสุ่มเวรยุคใหม่</p>
+                    </div>
+
+                    {/* Display Box */}
+                    <div className={`
+                        h-32 flex items-center justify-center mb-6 rounded-2xl transition-all duration-300
+                        ${winner ? 'bg-white/20 scale-105 shadow-lg border-2 border-pink-400' : 'bg-black/20'}
+                    `}>
+                        <h2 className={`text-4xl font-bold text-center break-words px-4 ${isRolling ? 'animate-pulse' : ''}`}>
+                            {winner ? `🎉 ${display} 🎉` : display}
+                        </h2>
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="mb-6">
+                        <label className="text-xs uppercase tracking-wider text-white/60 mb-2 block">รายชื่อผู้โชคดี (บรรทัดละชื่อ)</label>
+                        <textarea 
+                            value={names}
+                            onChange={(e) => setNames(e.target.value)}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all h-24 resize-none"
+                            placeholder="พิมพ์ชื่อที่นี่..."
+                        ></textarea>
+                    </div>
+
+                    {/* Button */}
+                    <button 
+                        onClick={handleRandom}
+                        disabled={isRolling}
+                        className={`
+                            w-full py-4 rounded-xl font-bold text-lg shadow-lg transform transition-all
+                            ${isRolling 
+                                ? 'bg-gray-500 cursor-not-allowed' 
+                                : 'bg-gradient-to-r from-pink-500 to-violet-600 hover:scale-[1.02] hover:shadow-pink-500/50 active:scale-95'}
+                        `}
+                    >
+                        {isRolling ? 'กำลังสุ่ม...' : '🚀 สุ่มเลย!'}
+                    </button>
+
+                    {/* History */}
+                    {history.length > 0 && (
+                        <div className="mt-8 pt-6 border-t border-white/10">
+                            <h3 className="text-sm font-semibold mb-3 text-white/80">📜 ประวัติล่าสุด</h3>
+                            <div className="max-h-32 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                                {history.map((item, index) => (
+                                    <div key={index} className="flex justify-between items-center bg-white/5 p-2 rounded-lg text-sm hover:bg-white/10 transition">
+                                        <span className="font-medium">{item.name}</span>
+                                        <span className="text-xs text-white/50">{item.time}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         }
 
-        // 2. เริ่มทำงานเมื่อกดปุ่ม
-        function startMachine() {
-            if (isPlaying) return;
-            isPlaying = true;
-
-            // Reset Capsule
-            el.capsule.classList.remove('dropping');
-            el.capsule.style.transform = 'translateX(-50%) scale(0)';
-
-            // Start Animation
-            el.knob.classList.add('spinning');
-            
-            const balls = document.querySelectorAll('.ball-inside');
-            balls.forEach(ball => {
-                ball.style.animationDelay = Math.random() * 0.5 + 's'; // random delay ให้ดูธรรมชาติ
-                ball.classList.add('mixing');
-            });
-
-            // รอ 5 วินาที
-            setTimeout(() => {
-                stopAnimation(balls);
-                dropPrize();
-            }, CONFIG.spinDuration);
-        }
-
-        // 3. หยุดอนิเมชั่น
-        function stopAnimation(balls) {
-            el.knob.classList.remove('spinning');
-            balls.forEach(ball => {
-                ball.classList.remove('mixing');
-                // รีเซ็ตตำแหน่งให้นิ่งๆ
-                ball.style.transform = 'translate(0,0)';
-            });
-        }
-
-        // 4. ปล่อยรางวัล
-        function dropPrize() {
-            // สุ่มสีแคปซูลผลลัพธ์
-            const randomColor = CONFIG.ballColors[Math.floor(Math.random() * CONFIG.ballColors.length)];
-            el.capsule.style.background = `radial-gradient(circle at 30% 30%, #fff, ${randomColor})`;
-            
-            // Animation ตก
-            el.capsule.classList.add('dropping');
-
-            // แสดงผล
-            setTimeout(() => {
-                showResult();
-            }, 1000);
-        }
-
-        // 5. แสดง Pop-up
-        function showResult() {
-            const result = CONFIG.prizes[Math.floor(Math.random() * CONFIG.prizes.length)];
-            el.prizeText.innerText = result;
-            el.modal.style.display = 'flex';
-        }
-
-        // 6. รีเซ็ตเพื่อเล่นใหม่
-        function resetMachine() {
-            el.modal.style.display = 'none';
-            isPlaying = false;
-        }
-
-        // Run Init
-        window.onload = initBalls;
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
